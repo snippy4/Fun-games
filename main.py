@@ -18,7 +18,7 @@ class text_display:
 class menu:
     def __init__(self, screen):
         self.screen = screen
-        self.theme = [(235,235,249), (5,68,94), (212,241,244), (228, 243, 245)]
+        self.theme = []
         self.clickables = []
         self.text_displays = []
 
@@ -47,17 +47,17 @@ class menu:
         font = pygame.font.Font('themes/Calistoga-Regular.ttf', 24)
         for button in self.clickables:
             if button.pos[0] <= pos[0] <= button.pos[0] + 400 and button.pos[1] <= pos[1] <= button.pos[1] + 100:
-                pygame.draw.rect(self.screen, self.theme[3], ((button.pos), (400,100)))
-            else:
                 pygame.draw.rect(self.screen, self.theme[2], ((button.pos), (400,100)))
-            pygame.draw.rect(self.screen, self.theme[1], ((button.pos), (400,100)), 5)
-            text = font.render(button.text, True, self.theme[1])
+            else:
+                pygame.draw.rect(self.screen, self.theme[1], ((button.pos), (400,100)))
+            pygame.draw.rect(self.screen, self.theme[2], ((button.pos), (400,100)), 5)
+            text = font.render(button.text, True, self.theme[3])
             textRect = text.get_rect()
             textRect.center = (button.pos[0] + 200, button.pos[1] + 50)
             self.screen.blit(text, textRect)
         for text in self.text_displays:
             font = pygame.font.Font('themes/Calistoga-Regular.ttf', text.size)
-            textbox = font.render(text.text, True, self.theme[1])
+            textbox = font.render(text.text, True, self.theme[3])
             textRect = textbox.get_rect()
             textRect.center = (text.pos[0] + 200, text.pos[1] + 50)
             self.screen.blit(textbox, textRect)
@@ -71,12 +71,20 @@ class menu:
                 clickable.function()
 
     def set_up_menu(self):
+        if len(self.theme) == 0:
+            newtheme = []
+            with open(f'themes/light.txt') as f:
+                for line in f:
+                    line = tuple(map(int, line.strip("()\n").split(',')))
+                    newtheme.append(line)
+            self.theme = newtheme
         play_button = button((700,300),self.play_button,"Play")
         settings_button = button((700,500),self.settings_button,"Settings")
         exit_button = button((700,700),self.quit_button,"Quit")
         self.clickables = [play_button, settings_button, exit_button]
-        minigames_text = text_display("Minigames", 68, self.theme[1], (700, 100))
+        minigames_text = text_display("Minigames", 68, self.theme[3], (700, 100))
         self.text_displays = [minigames_text]
+        
 
 
     def play_button(self):
@@ -109,6 +117,12 @@ class menu:
     def load_theme(self):
         num = math.floor((pygame.mouse.get_pos()[0] -400)/500)*3 + math.floor((pygame.mouse.get_pos()[1] - 200)/200)
         print(self.clickables[num].text)
+        newtheme = []
+        with open(f'themes/{self.clickables[num].text}.txt') as f:
+            for line in f:
+                line = tuple(map(int, line.strip("()\n").split(',')))
+                newtheme.append(line)
+        self.theme = newtheme
 
 
 if __name__ == "__main__":
