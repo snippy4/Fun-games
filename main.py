@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os, glob, math
 
 class button:
     def __init__(self, pos, function, text):
@@ -82,11 +83,32 @@ class menu:
         print(f'hello play')
     
     def settings_button(self):
-        print(f'hello settings')
+        back_button = button((700,700),self.set_up_menu,"Back")
+        themes_button = button((700,300),self.themes_button,"Themes")
+        self.clickables = [back_button, themes_button]
+        minigames_text = text_display("Minigames", 68, self.theme[1], (700, 100))
+        self.text_displays = [minigames_text]
 
     def quit_button(self):
         self.running = False
+    
+    def themes_button(self):
+        back_button = button((200,800),self.settings_button,"Back")
+        self.clickables = []
+        file_pattern = os.path.join('themes', '*.txt')
+        self.themes = glob.glob(file_pattern)
+        num = 0
+        for theme in self.themes:
+            theme_button = button((math.floor(num/3) * 500 + 400, (num*200)%600 + 200), self.load_theme, theme.split("\\")[1].split(".")[0])
+            self.clickables.append(theme_button)
+            num += 1
+        minigames_text = text_display("Minigames", 68, self.theme[1], (700, 100))
+        self.text_displays = [minigames_text]
+        self.clickables.append(back_button)
 
+    def load_theme(self):
+        num = math.floor((pygame.mouse.get_pos()[0] -400)/500)*3 + math.floor((pygame.mouse.get_pos()[1] - 200)/200)
+        print(self.clickables[num].text)
 
 
 if __name__ == "__main__":
