@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os, glob, math
+import pong
 
 class button:
     def __init__(self, pos, function, text):
@@ -88,7 +89,11 @@ class menu:
 
 
     def play_button(self):
-        print(f'hello play')
+        back_button = button((700,700),self.set_up_menu,"Back")
+        pong_button = button((700,300),self.play_pong,"Pong")
+        self.clickables = [back_button, pong_button]
+        minigames_text = text_display("Minigames", 68, self.theme[1], (700, 100))
+        self.text_displays = [minigames_text]
     
     def settings_button(self):
         back_button = button((700,700),self.set_up_menu,"Back")
@@ -123,6 +128,10 @@ class menu:
                 line = tuple(map(int, line.strip("()\n").split(',')))
                 newtheme.append(line)
         self.theme = newtheme
+
+    def play_pong(self):
+        pong_game = pong.game(self.screen, self.theme)
+        pong_game.menu_screen()
 
 
 if __name__ == "__main__":
