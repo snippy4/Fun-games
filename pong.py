@@ -1,5 +1,5 @@
 import pygame
-import sys
+import time, math, random
 class ball:
     def __init__(self, pos, velocity):
         self.pos = pos
@@ -28,15 +28,23 @@ class game:
         self.screen = screen
         self.theme = theme
         self.clickables = []
-        self.objects = []
+        self.paddles = []
         self.text_displays = []
 
     def play(self):
         self.running = True
-
+        self.player_paddle = paddle((200,600))
+        self.computer_paddle = paddle((1600,600))
+        self.ball = ball((900,550), (-4, 0))
+        self.paddles = [self.player_paddle, self.computer_paddle]
+        self.moving_up = False
+        self.moving_down = False
+        self.collided = 0
         while self.running:
             #actions in frame
+            starttime = time.perf_counter()
             self.draw(pygame.mouse.get_pos())
+            self.frame()
 
             #handles inputs
             for event in pygame.event.get():
@@ -45,18 +53,64 @@ class game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
+                    if event.key == pygame.K_w:
+                        self.moving_up = True
+                    if event.key == pygame.K_s:
+                        self.moving_down = True
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_w:
+                        self.moving_up = False
+                    if event.key == pygame.K_s:
+                        self.moving_down = False
                 if event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     self.click(pos)
+            while (time.perf_counter() - starttime) < 0.01:
+                pass
     
     def draw(self, pos):
         self.screen.fill(self.theme[0])
+        for paddle in self.paddles:
+            pygame.draw.rect(self.screen, self.theme[2], (paddle.pos[0], paddle.pos[1], 20, 100))
+        pygame.draw.rect(self.screen, self.theme[3], (self.ball.pos[0], self.ball.pos[1], 20, 20))
+        pygame.draw.rect(self.screen, self.theme[2], (100, 100, pygame.display.get_window_size()[0]-200, pygame.display.get_window_size()[1]-200), 5)
+        
         pygame.display.flip()
+
+    def frame(self):
+        if self.collided > 0:
+            self.collided -= 1
+        self.ball.pos = (self.ball.pos[0] + self.ball.velocity[0], self.ball.pos[1] + self.ball.velocity[1])
+        if self.moving_up:
+            self.player_paddle.pos = (self.player_paddle.pos[0], self.player_paddle.pos[1] - 4)
+        if self.moving_down:
+            self.player_paddle.pos = (self.player_paddle.pos[0], self.player_paddle.pos[1] + 4)
+        for paddle in self.paddles:
+            if (paddle.pos[0] < self.ball.pos[0] + 20 and paddle.pos[0] + 20 > self.ball.pos[0] and paddle.pos[1] < self.ball.pos[1] + 20 and paddle.pos[1] + 100 > self.ball.pos[1]) and self.collided == 0:
+                self.ball.velocity = (self.ball.velocity[0]*-1, math.floor((self.ball.pos[1] - paddle.pos[1] - 50)*0.1))
+                self.ai_predict()
+        if self.ball.pos[1] <= 105:
+            self.ball.velocity = (self.ball.velocity[0], -self.ball.velocity[1])
+        if self.ball.pos[1] >= pygame.display.get_window_size()[1]-120:
+            self.ball.velocity = (self.ball.velocity[0], -self.ball.velocity[1])
+
+    def ai_predict(self):
+        posx, posy = self.ball.pos
+        multiplyer = 1
+        while posx < 1600:
+            if self.ball.velocity[0] < 1:
+                break
+            posx += self.ball.velocity[0]
+            posy += multiplyer * self.ball.velocity[1]
+            if posy >= pygame.display.get_window_size()[1]-120 or posy <= 105:
+                multiplyer *= -1
+        self.computer_paddle.pos = (self.computer_paddle.pos[0], posy - 50 + random.randint(-40,40))
 
     def menu_screen(self):
         self.running = True
         self.set_up_menu()
         while self.running:
+            starttime = time.perf_counter()
             #actions in frame
             self.draw_menu(pygame.mouse.get_pos())
 
@@ -70,6 +124,8 @@ class game:
                 if event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     self.click(pos)
+            while (time.perf_counter() - starttime) < 0.01:
+                pass
 
     def draw_menu(self, pos):
         self.screen.fill(self.theme[0])

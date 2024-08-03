@@ -121,7 +121,6 @@ class menu:
 
     def load_theme(self):
         num = math.floor((pygame.mouse.get_pos()[0] -400)/500)*3 + math.floor((pygame.mouse.get_pos()[1] - 200)/200)
-        print(self.clickables[num].text)
         newtheme = []
         with open(f'themes/{self.clickables[num].text}.txt') as f:
             for line in f:
