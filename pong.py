@@ -30,16 +30,19 @@ class game:
         self.clickables = []
         self.paddles = []
         self.text_displays = []
-
-    def play(self):
+        self.difficulty = 1
         self.running = True
         self.player_paddle = paddle((200,600))
         self.computer_paddle = paddle((1600,600))
+        self.target_pos = (1600,600)
         self.ball = ball((900,550), (-4, 0))
         self.paddles = [self.player_paddle, self.computer_paddle]
         self.moving_up = False
         self.moving_down = False
         self.collided = 0
+
+    def play(self):
+        self.running = True
         while self.running:
             #actions in frame
             starttime = time.perf_counter()
@@ -88,12 +91,17 @@ class game:
         for paddle in self.paddles:
             if (paddle.pos[0] < self.ball.pos[0] + 20 and paddle.pos[0] + 20 > self.ball.pos[0] and paddle.pos[1] < self.ball.pos[1] + 20 and paddle.pos[1] + 100 > self.ball.pos[1]) and self.collided == 0:
                 self.ball.velocity = (self.ball.velocity[0]*-1, math.floor((self.ball.pos[1] - paddle.pos[1] - 50)*0.1))
-                self.ai_predict()
+                if self.ball.velocity[0] > 0:
+                    self.ai_predict()
         if self.ball.pos[1] <= 105:
             self.ball.velocity = (self.ball.velocity[0], -self.ball.velocity[1])
         if self.ball.pos[1] >= pygame.display.get_window_size()[1]-120:
             self.ball.velocity = (self.ball.velocity[0], -self.ball.velocity[1])
-
+        if self.computer_paddle.pos[1] - self.target_pos[1] < 4:
+            self.computer_paddle.pos = (self.computer_paddle.pos[0],self.computer_paddle.pos[1] + self.difficulty)
+        if self.computer_paddle.pos[1] - self.target_pos[1] > 4:
+            self.computer_paddle.pos = (self.computer_paddle.pos[0],self.computer_paddle.pos[1] - self.difficulty)
+                
     def ai_predict(self):
         posx, posy = self.ball.pos
         multiplyer = 1
@@ -104,12 +112,12 @@ class game:
             posy += multiplyer * self.ball.velocity[1]
             if posy >= pygame.display.get_window_size()[1]-120 or posy <= 105:
                 multiplyer *= -1
-        self.computer_paddle.pos = (self.computer_paddle.pos[0], posy - 50 + random.randint(-40,40))
+        self.target_pos = (self.computer_paddle.pos[0], posy - 50 + random.randint(-40,40))
 
     def menu_screen(self):
-        self.running = True
+        self.running_menu = True
         self.set_up_menu()
-        while self.running:
+        while self.running_menu:
             starttime = time.perf_counter()
             #actions in frame
             self.draw_menu(pygame.mouse.get_pos())
@@ -117,10 +125,10 @@ class game:
             #handles inputs
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
+                    self.running_menu = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.running = False
+                        self.running_menu = False
                 if event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     self.click(pos)
@@ -151,8 +159,26 @@ class game:
     
     def set_up_menu(self):
         play_button = button((700,300),self.play,"Play Pong!")
-        back_button = button((700,500),self.quit,"Back!")
-        self.clickables = [play_button, back_button]
+        difficulty_button = button((700,500), self.difficulty_menu, "Difficulty")
+        back_button = button((700,700),self.quit,"Back!")
+        self.clickables = [play_button, back_button, difficulty_button]
+    
+    def difficulty_menu(self):
+        easy_button = button((700,300), self.set_dif_easy, "Easy")
+        medium_button = button((700,500), self.set_dif_medium, "Medium")
+        hard_button = button((1200,300), self.set_dif_hard, "Hard")
+        back_button = button((700,700),self.set_up_menu,"Back!")
+        self.clickables = [easy_button, medium_button, hard_button, back_button]
+
+    def set_dif_easy(self):
+        self.difficulty = 1
+    
+    def set_dif_medium(self):
+        self.difficulty = 2
+
+    def set_dif_hard(self):
+        self.difficulty = 4
+        self.ball.velocity = (-6, 0)
 
     def click(self, pos):
         current_clickables = [x for x in self.clickables]
@@ -161,7 +187,7 @@ class game:
                 clickable.function()
     
     def quit(self):
-        self.running = False
+        self.running_menu = False
 
 if __name__ == "__main__":
     pygame.init()
@@ -169,3 +195,4 @@ if __name__ == "__main__":
     pygame.display.toggle_fullscreen()
     pong = game(screen, [(245,245,245),(255,255,255),(0,122,255),(51,51,51)])
     pong.menu_screen()
+    sys.exit()

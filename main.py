@@ -132,7 +132,6 @@ class menu:
         pong_game = pong.game(self.screen, self.theme)
         pong_game.menu_screen()
 
-
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
