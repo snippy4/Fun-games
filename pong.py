@@ -87,9 +87,11 @@ class game:
             self.collided -= 1
         self.ball.pos = (self.ball.pos[0] + self.ball.velocity[0], self.ball.pos[1] + self.ball.velocity[1])
         if self.moving_up:
-            self.player_paddle.pos = (self.player_paddle.pos[0], self.player_paddle.pos[1] - 4)
+            if self.player_paddle.pos[1] >= 105:
+                self.player_paddle.pos = (self.player_paddle.pos[0], self.player_paddle.pos[1] - 4)
         if self.moving_down:
-            self.player_paddle.pos = (self.player_paddle.pos[0], self.player_paddle.pos[1] + 4)
+            if self.player_paddle.pos[1] <= pygame.display.get_window_size()[1]-200:
+                self.player_paddle.pos = (self.player_paddle.pos[0], self.player_paddle.pos[1] + 4)
         for paddle in self.paddles:
             if (paddle.pos[0] < self.ball.pos[0] + 20 and paddle.pos[0] + 20 > self.ball.pos[0] and paddle.pos[1] < self.ball.pos[1] + 20 and paddle.pos[1] + 100 > self.ball.pos[1]) and self.collided == 0:
                 self.ball.velocity = (self.ball.velocity[0]*-1, math.floor((self.ball.pos[1] - paddle.pos[1] - 50)*0.1))
@@ -99,9 +101,9 @@ class game:
             self.ball.velocity = (self.ball.velocity[0], -self.ball.velocity[1])
         if self.ball.pos[1] >= pygame.display.get_window_size()[1]-120:
             self.ball.velocity = (self.ball.velocity[0], -self.ball.velocity[1])
-        if self.computer_paddle.pos[1] - self.target_pos[1] < 4:
+        if self.computer_paddle.pos[1] - self.target_pos[1] < 4 and self.computer_paddle.pos[1] >= 105:
             self.computer_paddle.pos = (self.computer_paddle.pos[0],self.computer_paddle.pos[1] + self.difficulty)
-        if self.computer_paddle.pos[1] - self.target_pos[1] > 4:
+        if self.computer_paddle.pos[1] - self.target_pos[1] > 4 and self.computer_paddle.pos[1] <= pygame.display.get_window_size()[1]-200:
             self.computer_paddle.pos = (self.computer_paddle.pos[0],self.computer_paddle.pos[1] - self.difficulty)
                 
     def ai_predict(self):
