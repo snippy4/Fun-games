@@ -31,18 +31,20 @@ class game:
         self.paddles = []
         self.text_displays = []
         self.difficulty = 1
+
+    def play(self):
         self.running = True
         self.player_paddle = paddle((200,600))
         self.computer_paddle = paddle((1600,600))
         self.target_pos = (1600,600)
         self.ball = ball((900,550), (-4, 0))
+        if self.difficulty == 4:
+            self.ball.velocity = (-8,0)
         self.paddles = [self.player_paddle, self.computer_paddle]
         self.moving_up = False
         self.moving_down = False
         self.collided = 0
 
-    def play(self):
-        self.running = True
         while self.running:
             #actions in frame
             starttime = time.perf_counter()
@@ -178,7 +180,6 @@ class game:
 
     def set_dif_hard(self):
         self.difficulty = 4
-        self.ball.velocity = (-6, 0)
 
     def click(self, pos):
         current_clickables = [x for x in self.clickables]
