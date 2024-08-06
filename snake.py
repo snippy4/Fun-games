@@ -54,7 +54,11 @@ class game:
                 pass
     
     def draw(self, pos):
-        self.screen.fill(self.theme[0]) 
+        self.screen.fill(self.theme[0])
+        for x in range(1, math.floor((pygame.display.get_window_size()[0]-200)/50)+1):
+            for y in range(1, math.floor((pygame.display.get_window_size()[1]-200)/50)+1):
+                pygame.draw.rect(self.screen, self.theme[math.floor((x+y)%2)], (100 + (x-1)*50, 100+(y-1)*50, 50, 50))
+        pygame.draw.rect(self.screen, self.theme[2], (100, 100, pygame.display.get_window_size()[0]-220, pygame.display.get_window_size()[1]-230), 5)
         pygame.display.flip()
 
     def frame(self):
