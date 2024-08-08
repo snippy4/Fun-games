@@ -24,6 +24,7 @@ class game:
 
     def play(self):
         self.running = True
+        self.setup_game()
        
         while self.running:
             #actions in frame
@@ -38,31 +39,82 @@ class game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
-                    if event.key == pygame.K_w:
-                        self.moving_up = True
                     if event.key == pygame.K_s:
-                        self.moving_down = True
-                if event.type == pygame.KEYUP:
+                        if self.movementcd <= 0:
+                            if self.moved > 40:
+                                self.snake_pos = (self.snake_pos[0] + self.direction[0], self.snake_pos[1] + self.direction[1])
+                                self.moved = 0
+                            self.movementcd = 30
+                            self.direction = (0,1) 
                     if event.key == pygame.K_w:
-                        self.moving_up = False
-                    if event.key == pygame.K_s:
-                        self.moving_down = False
+                        if self.movementcd <= 0:
+                            if self.moved > 40:
+                                self.snake_pos = (self.snake_pos[0] + self.direction[0], self.snake_pos[1] + self.direction[1]) 
+                                self.moved = 0
+                            self.movementcd = 30
+                            self.direction = (0,-1)
+                    if event.key == pygame.K_a:
+                        if self.movementcd <= 0:
+                            if self.moved > 40:
+                                self.snake_pos = (self.snake_pos[0] + self.direction[0], self.snake_pos[1] + self.direction[1]) 
+                                self.moved = 0
+                            self.movementcd = 30
+                            self.direction = (-1,0)
+                    if event.key == pygame.K_d:
+                        if self.movementcd <= 0:
+                            if self.moved > 40:
+                                self.snake_pos = (self.snake_pos[0] + self.direction[0], self.snake_pos[1] + self.direction[1]) 
+                                self.moved = 0
+                            self.movementcd = 30
+                            self.direction = (1,0)
                 if event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     self.click(pos)
             while (time.perf_counter() - starttime) < 0.01:
                 pass
+
+    def setup_game(self):
+        if self.difficulty == 1:
+            self.obsticles = []
+        if self.difficulty == 2:
+            self.obsticles = [(10,6),(10,7),(10,8),(10,9),(10,10),(10,11),(10,12),(25,6),(25,7),(25,8),(25,9),(25,10),(25,11),(25,12)]
+        if self.difficulty == 4:
+            self.obsticles = [(10,6),(10,7),(10,8),(10,9),(10,10),(10,11),(10,12),(25,6),(25,7),(25,8),(25,9),(25,10),(25,11),(25,12),(13,3),(14,3),(15,3),(16,3),(17,3),(18,3),(19,3),(20,3),(21,3),(22,3),(13,15),(14,15),(15,15),(16,15),(17,15),(18,15),(19,15),(20,15),(21,15),(22,15)]
+        self.snake_pos = (2,1)
+        self.snake_body = [(1,1), (1,2)]
+        self.direction = (1,0)
+        self.moved = 0
+        self.movementcd = 0
     
     def draw(self, pos):
         self.screen.fill(self.theme[0])
         for x in range(1, math.floor((pygame.display.get_window_size()[0]-200)/50)+1):
             for y in range(1, math.floor((pygame.display.get_window_size()[1]-200)/50)+1):
                 pygame.draw.rect(self.screen, self.theme[math.floor((x+y)%2)], (100 + (x-1)*50, 100+(y-1)*50, 50, 50))
+        for obsticle in self.obsticles:
+            pygame.draw.rect(self.screen, self.theme[2], (100 + (obsticle[0]-1)*50, 100+(obsticle[1]-1)*50, 50, 50))
+        pygame.draw.rect(self.screen, self.theme[3], (100 + (self.snake_pos[0]-1)*50 + self.moved * self.direction[0], 100+(self.snake_pos[1]-1)*50 + self.moved * self.direction[1], 50, 50))
+        pygame.draw.rect(self.screen, self.theme[0], (125 + (self.snake_pos[0]-1)*50 + self.moved * self.direction[0] + 10 * self.direction[0] - 10 * self.direction[1], 125+(self.snake_pos[1]-1)*50 + self.moved * self.direction[1]+ 10 * self.direction[1] - (10 * self.direction[0]), 5, 5))
+        pygame.draw.rect(self.screen, self.theme[0], (125 + (self.snake_pos[0]-1)*50 + self.moved * self.direction[0] + 10 * self.direction[0] + 10 * self.direction[1], 125+(self.snake_pos[1]-1)*50 + self.moved * self.direction[1]+ 10 * self.direction[1] + 10 * self.direction[0], 5, 5))
+        for i in range(len(self.snake_body)-1):
+            direction = (self.snake_body[len(self.snake_body)-i-2][0] - self.snake_body[len(self.snake_body)-i-1][0], self.snake_body[len(self.snake_body)-i-2][1]- self.snake_body[len(self.snake_body)-i-1][1])
+            pygame.draw.rect(self.screen, self.theme[3], (100 + (self.snake_body[len(self.snake_body)-i-1][0]-1)*50 + self.moved * direction[0], 100+(self.snake_body[len(self.snake_body)-i-1][1]-1)*50 + self.moved * direction[1], 50, 50))
+        direction = (self.snake_pos[0] - self.snake_body[0][0],self.snake_pos[1] - self.snake_body[0][1])
+        pygame.draw.rect(self.screen, self.theme[3], (100 + (self.snake_body[0][0]-1)*50 + self.moved * direction[0], 100+(self.snake_body[0][1]-1)*50 + self.moved * direction[1], 50, 50))
         pygame.draw.rect(self.screen, self.theme[2], (100, 100, pygame.display.get_window_size()[0]-220, pygame.display.get_window_size()[1]-230), 5)
         pygame.display.flip()
 
     def frame(self):
-        pass
+        self.moved += 2*self.difficulty
+        if self.moved >= 50:
+            self.moved = 0
+            for i in range(len(self.snake_body)-1):
+                self.snake_body[len(self.snake_body)-i-1] = self.snake_body[len(self.snake_body)-i-2]
+            self.snake_body[0] = self.snake_pos
+            self.snake_pos = (self.snake_pos[0] + self.direction[0],self.snake_pos[1] + self.direction[1])
+        if self.movementcd > 0:
+            self.movementcd -= 2*self.difficulty
+
                 
     def menu_screen(self):
         self.running_menu = True
