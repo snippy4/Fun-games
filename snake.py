@@ -192,8 +192,7 @@ class game:
 
 if __name__ == "__main__":
     pygame.init()
-    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    pygame.display.toggle_fullscreen()
+    screen = pygame.display.set_mode((1920,1080), pygame.FULLSCREEN)
     snake = game(screen, [(245,245,245),(255,255,255),(0,122,255),(51,51,51)])
     snake.menu_screen()
     sys.exit()

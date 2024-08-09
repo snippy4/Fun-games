@@ -95,6 +95,7 @@ class menu:
         self.clickables = [back_button, pong_button, snake_button]
         minigames_text = text_display("Minigames", 68, self.theme[1], (700, 100))
         self.text_displays = [minigames_text]
+        #a new comment
     
     def settings_button(self):
         back_button = button((700,700),self.set_up_menu,"Back")
@@ -113,7 +114,10 @@ class menu:
         self.themes = glob.glob(file_pattern)
         num = 0
         for theme in self.themes:
-            theme_button = button((math.floor(num/3) * 500 + 400, (num*200)%600 + 200), self.load_theme, theme.split("\\")[1].split(".")[0])
+            try:
+                theme_button = button((math.floor(num/3) * 500 + 400, (num*200)%600 + 200), self.load_theme, theme.split("\\")[1].split(".")[0])
+            except:
+                theme_button = button((math.floor(num/3) * 500 + 400, (num*200)%600 + 200), self.load_theme, theme.split("/")[1].split(".")[0])
             self.clickables.append(theme_button)
             num += 1
         minigames_text = text_display("Minigames", 68, self.theme[1], (700, 100))
