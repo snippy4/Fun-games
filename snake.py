@@ -80,6 +80,7 @@ class game:
             self.obsticles = [(10,6),(10,7),(10,8),(10,9),(10,10),(10,11),(10,12),(25,6),(25,7),(25,8),(25,9),(25,10),(25,11),(25,12)]
         if self.difficulty == 4:
             self.obsticles = [(10,6),(10,7),(10,8),(10,9),(10,10),(10,11),(10,12),(25,6),(25,7),(25,8),(25,9),(25,10),(25,11),(25,12),(13,3),(14,3),(15,3),(16,3),(17,3),(18,3),(19,3),(20,3),(21,3),(22,3),(13,15),(14,15),(15,15),(16,15),(17,15),(18,15),(19,15),(20,15),(21,15),(22,15)]
+        self.place_food()
         self.snake_pos = (2,1)
         self.snake_body = [(1,1), (1,2)]
         self.direction = (1,0)
@@ -88,8 +89,8 @@ class game:
     
     def draw(self, pos):
         self.screen.fill(self.theme[0])
-        for x in range(1, math.floor((pygame.display.get_window_size()[0]-200)/50)+1):
-            for y in range(1, math.floor((pygame.display.get_window_size()[1]-200)/50)+1):
+        for x in range(1, 35):
+            for y in range(1, 18):
                 pygame.draw.rect(self.screen, self.theme[math.floor((x+y)%2)], (100 + (x-1)*50, 100+(y-1)*50, 50, 50))
         for obsticle in self.obsticles:
             pygame.draw.rect(self.screen, self.theme[2], (100 + (obsticle[0]-1)*50, 100+(obsticle[1]-1)*50, 50, 50))
@@ -101,7 +102,8 @@ class game:
             pygame.draw.rect(self.screen, self.theme[3], (100 + (self.snake_body[len(self.snake_body)-i-1][0]-1)*50 + self.moved * direction[0], 100+(self.snake_body[len(self.snake_body)-i-1][1]-1)*50 + self.moved * direction[1], 50, 50))
         direction = (self.snake_pos[0] - self.snake_body[0][0],self.snake_pos[1] - self.snake_body[0][1])
         pygame.draw.rect(self.screen, self.theme[3], (100 + (self.snake_body[0][0]-1)*50 + self.moved * direction[0], 100+(self.snake_body[0][1]-1)*50 + self.moved * direction[1], 50, 50))
-        pygame.draw.rect(self.screen, self.theme[2], (100, 100, pygame.display.get_window_size()[0]-220, pygame.display.get_window_size()[1]-230), 5)
+        pygame.draw.rect(self.screen, self.theme[2], (80, 80, 35*50, 18*50), 5)
+        pygame.draw.rect(self.screen, self.theme[3], (self.food[0]*50+115, self.food[1]*50+115, 20, 20))
         pygame.display.flip()
 
     def frame(self):
@@ -114,7 +116,23 @@ class game:
             self.snake_pos = (self.snake_pos[0] + self.direction[0],self.snake_pos[1] + self.direction[1])
         if self.movementcd > 0:
             self.movementcd -= 2*self.difficulty
+        # collision detection
+        if self.snake_pos[0] <= 0 or self.snake_pos[0] >= 35 or self.snake_pos[1] <=0 or self.snake_pos[1] >= 18:
+            self.running = False
+        for obsticle in self.obsticles:
+            if self.snake_pos == obsticle:
+                self.running=False
+        for obsticle in self.snake_body:
+            if self.snake_pos == obsticle:
+                self.running=False
+        
+        if self.snake_pos[0]-1 == self.food[0] and self.snake_pos[1]-1 == self.food[1]:
+            self.eat()
 
+    def eat(self):
+        self.place_food()
+        direction = (self.snake_body[len(self.snake_body)-2][0] - self.snake_body[len(self.snake_body)-1][0], self.snake_body[len(self.snake_body)-2][1] - self.snake_body[len(self.snake_body)-1][1])
+        self.snake_body.append((self.snake_body[len(self.snake_body)-1][0] + direction[0], self.snake_body[len(self.snake_body)-1][1] + direction[1]))
                 
     def menu_screen(self):
         self.running_menu = True
@@ -187,6 +205,17 @@ class game:
             if clickable.pos[0] <= pos[0] <= clickable.pos[0] + 400 and clickable.pos[1] <= pos[1] <= clickable.pos[1] + 100:
                 clickable.function()
     
+    def place_food(self):
+        placed = False
+        while not placed:
+            ranx = random.randint(1,33)
+            rany = random.randint(1,16)
+            self.food = (ranx, rany)
+            placed = True
+            for obsticle in self.obsticles:
+                if self.food == obsticle:
+                    placed = False
+
     def quit(self):
         self.running_menu = False
 
