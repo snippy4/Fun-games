@@ -1,7 +1,7 @@
 import pygame
 import sys
 import os, glob, math
-import pong, snake
+import pong, snake, asteroids
 
 class button:
     def __init__(self, pos, function, text):
@@ -90,9 +90,10 @@ class menu:
 
     def play_button(self):
         back_button = button((200,800),self.set_up_menu,"Back")
-        pong_button = button((700,300),self.play_pong,"Pong")
-        snake_button = button((700,500),self.play_snake,"Snake")
-        self.clickables = [back_button, pong_button, snake_button]
+        pong_button = button((400,200),self.play_pong,"Pong")
+        snake_button = button((400,400),self.play_snake,"Snake")
+        asteroids_button = button((400,600),self.play_asteroids,"asteroids")
+        self.clickables = [back_button, pong_button, snake_button, asteroids_button]
         minigames_text = text_display("Minigames", 68, self.theme[1], (700, 100))
         self.text_displays = [minigames_text]
         #a new comment
@@ -140,6 +141,10 @@ class menu:
     def play_snake(self):
         snake_game = snake.game(self.screen, self.theme)
         snake_game.menu_screen()
+    
+    def play_asteroids(self):
+        asteroids_game = asteroids.game(self.screen, self.theme)
+        asteroids_game.menu_screen()
 
 if __name__ == "__main__":
     pygame.init()
