@@ -213,10 +213,10 @@ class game:
             self.food = (ranx, rany)
             placed = True
             for obsticle in self.obsticles:
-                if self.food == obsticle:
+                if self.food[0] == obsticle[0]-1 and self.food[1] == obsticle[1]-1:
                     placed = False
             for obsticle in self.snake_body:
-                if self.food == obsticle:
+                if self.food[0] == obsticle[0]-1 and self.food[1] == obsticle[1]-1 :
                     placed = False
             
 
