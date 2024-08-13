@@ -1,5 +1,5 @@
 import pygame
-import time, math, random
+import time, math, random, sys
 class ball:
     def __init__(self, pos, velocity):
         self.pos = pos
