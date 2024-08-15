@@ -1,5 +1,5 @@
 import pygame
-import time, math, random
+import time, math, random, sys
 
 class button:
     def __init__(self, pos, function, text):
