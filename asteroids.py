@@ -14,6 +14,14 @@ class text_display:
         self.colour = colour
         self.pos = pos
 
+class Ship:
+    def __init__(self, pos, rotation):
+        self.pos = pos
+        self.rotation = rotation
+        self.body = pygame.Surface((40,60))
+        self.body.set_colorkey((0,0,0))
+        self.velocity = (0,0)
+
 class game:
     def __init__(self, screen, theme):
         self.screen = screen
@@ -24,6 +32,11 @@ class game:
 
     def play(self):
         self.running = True
+        #setup
+        self.ship = Ship((500,500), 0)
+        pygame.draw.polygon(self.ship.body,self.theme[2], [[0,0], [20,60], [40,0], [20,20]], 5)
+
+
 
         while self.running:
             #actions in frame
@@ -38,15 +51,6 @@ class game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
-                    if event.key == pygame.K_w:
-                        self.moving_up = True
-                    if event.key == pygame.K_s:
-                        self.moving_down = True
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_w:
-                        self.moving_up = False
-                    if event.key == pygame.K_s:
-                        self.moving_down = False
                 if event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     self.click(pos)
@@ -55,10 +59,24 @@ class game:
     
     def draw(self, pos):
         self.screen.fill(self.theme[0])
+        body = pygame.transform.rotate(self.ship.body, self.ship.rotation)
+        screen.blit(body, self.ship.pos)
         pygame.display.flip()
 
     def frame(self):
-        pass                
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            self.ship.rotation += 2
+            theta = math.radians(self.ship.rotation)
+            self.ship.velocity = (self.ship.velocity[0] + 0.02 * -math.cos(theta), self.ship.velocity[1] + 0.02 * math.sin(theta))
+        if keys[pygame.K_d]:
+            self.ship.rotation -= 2
+            theta = math.radians(self.ship.rotation)
+            self.ship.velocity = (self.ship.velocity[0] + 0.02 * math.cos(theta), self.ship.velocity[1] + 0.02 * -math.sin(theta))
+        if keys[pygame.K_w]:
+            theta = math.radians(self.ship.rotation)
+            self.ship.velocity = (self.ship.velocity[0] + 0.04 * math.sin(theta), self.ship.velocity[1] + 0.04 * math.cos(theta))
+        self.ship.pos = (self.ship.pos[0] + self.ship.velocity[0], self.ship.pos[1] + self.ship.velocity[1])
     def menu_screen(self):
         self.running_menu = True
         self.set_up_menu()
